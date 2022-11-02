@@ -1,11 +1,3 @@
-/***
- * Author: Akram Taghavi-Burris
- * Created: 10-30-22
- * Modified:
- * Description: Controls weather effects
- ***/
-
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,77 +5,80 @@ using UnityEngine.Audio;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public class Weather : MonoBehaviour
+public class WeatherSys : MonoBehaviour
 {
-    public GameObject rainGO;
+    public GameObject rainGo;
     ParticleSystem rainPS;
+
     public float rainTime = 10;
-    public AudioMixerSnapshot Raining;
-    public AudioMixerSnapshot Sunny;
+    Timer rainTimer = new Timer(10f, false);
+
+    public AudioMixerSnapshot raining;
+    public AudioMixerSnapshot sunny;
     public Volume postProcess;
 
     float lerpValue;
     float lerpDuration = 10;
     float transtionTime;
 
-
-    Timer rainTimer;
-
+    float timerTime;
+    bool startTime;
     AudioSource audioSrc;
-    bool isRaining = false;
+
+    bool isRaining;
     public bool IsRaining { get { return isRaining; } }
+
 
     // Start is called before the first frame update
     void Start()
     {
-        rainPS = rainGO.GetComponent<ParticleSystem>();
-        audioSrc= rainGO.GetComponent<AudioSource>();
-        rainTimer = new Timer(10f, false);
+        rainPS = rainGo.GetComponent<ParticleSystem>();
+        audioSrc = rainGo.GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
         rainTimer.Update(Time.deltaTime);
-        if (rainTimer.IsRunning())
+        if (startTime)
         {
-            if (!rainTimer.IsDone())
+            if (timerTime > 0)
             {
+                timerTime -= Time.deltaTime;
                 TintSky();
-
-            } else {
+            }
+            else
+            {
                 EndRain();
-            } //end if (timeRemaining > 0)
-        }//end if (startTimer)
-    }//end Update()
+            }
+        }
+    }
 
-
-    private void OnTriggerEnter(Collider other)
+    public void OnTriggerEnter(Collider other)
     {
         Debug.Log("Enter Rain");
 
-        if(other.tag == "Player")
+        if (other.tag == "Player")
         {
-            //if the timer has not yet started
-            if (!rainTimer.IsRunning())
+            if (!startTime)
             {
-                rainTimer.RestartTimer();
-                rainTimer.Start();
+                timerTime = rainTime;
+                startTime = true;
                 isRaining = true;
                 rainPS.Play();
                 audioSrc.Play();
-                Raining.TransitionTo(2.0f);
-            }//end if (!startTimer)
-
-        }//end if(other.tag == "Player")
-    }//end OnTriggerEnter()
+                raining.TransitionTo(2f);
+            }
+        }
+    }
 
     void TintSky()
     {
-        
+
         if (transtionTime < lerpDuration)
         {
             lerpValue = Mathf.Lerp(0, 1, transtionTime / lerpDuration);
+            Debug.Log(lerpValue);
             transtionTime += Time.deltaTime;
             postProcess.weight = lerpValue;
 
@@ -93,16 +88,9 @@ public class Weather : MonoBehaviour
 
     void EndRain()
     {
-        rainTimer.Stop();
+        startTime = false;
         isRaining = false;
-        rainTimer.RestartTimer();
         rainPS.Stop();
         audioSrc.Stop();
-        Sunny.TransitionTo(2.0f);
-
-    }//end EndRain()
-
-
-
-
+    }
 }

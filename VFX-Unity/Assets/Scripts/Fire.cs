@@ -30,7 +30,7 @@ public class Fire : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(weatherSystem.IsRaining);
+        //Debug.Log(weatherSystem.IsRaining);
 
         if (weatherSystem.IsRaining)
         {
@@ -45,7 +45,7 @@ public class Fire : MonoBehaviour
 
     void ExtinguishFire()
     {
-        Debug.Log("ExtinguishFire Fire");
+        //Debug.Log("ExtinguishFire Fire");
 
         fireParticleSystem.Stop();
         sparksParticleSystem.Stop();
